@@ -1,5 +1,7 @@
 package core.basesyntax;
 
+import java.util.Objects;
+
 public class MyHashMap<K, V> implements MyMap<K, V> {
     private static final int INITIAL_CAPACITY = 16;
     private static final float LOAD_FACTOR = 0.75f;
@@ -18,26 +20,24 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
     public void put(K key, V value) {
         int index = getIndexForKey(key);
         Node<K, V> newNode = new Node<>(key, value, null);
-        if (size == threshold) {
+        if (size >= threshold) {
             resize();
         }
         if (table[index] == null) {
             table[index] = newNode;
         } else {
-            Node<K, V> previousNode = table[index];
-            while (true) {
-                if (previousNode.key == key
-                        || (key != null && key.equals(previousNode.key))) {
-                    previousNode.value = value;
+            Node<K, V> node = table[index];
+            while (node != null) {
+                if (Objects.equals(key, node.key)) {
+                    node.value = value;
                     return;
                 }
-                if (previousNode.next == null) {
+                if (node.next == null) {
                     break;
-                } else {
-                    previousNode = previousNode.next;
                 }
+                node = node.next;
             }
-            previousNode.next = newNode;
+            node.next = newNode;
         }
         size++;
     }
@@ -47,8 +47,7 @@ public class MyHashMap<K, V> implements MyMap<K, V> {
         int index = getIndexForKey(key);
         Node<K, V> node = table[index];
         while (node != null) {
-            if (node.key == key
-                    || (key != null && key.equals(node.key))) {
+            if (Objects.equals(key, node.key)) {
                 break;
             }
             node = node.next;
